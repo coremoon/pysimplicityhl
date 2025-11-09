@@ -44,17 +44,35 @@ poetry run poe build-wheel
 ```
 
 # Test
-
-the demo file `demo/simple.hl` looks like this:
+in the `demo` folder you will several simplicityHL test files like e.g.
+the demo file `demo/simple.hl` which looks like this:
 ```rust
 fn main() {}
 ```
 
-this example `demo/main.py` will compile it when running 
+this example will compile to the binary `JA==` signifying an empty simplicity program.
+
+Running
 ```bash
 poetry run python demo/main.py
 ```
-and should give
+and should give the results of several test simplicity files being compiled
 ```json
-{"status":"success","program":"JA=="}
+{
+  "status": "success",
+  "program": "JA==",
+  "parameter_str": "--debug './pysimplicityhl/demo/simple.hl'"
+}
+{
+  "status": "success",
+  "program": "4EkhxS8Oa67l4PQnU9GQOM5f425K8oynz2VMtqrT2Wu0YojxUYhwwDELM4oFrbGHM4qiEiuhMwARVwsGLwpYT2BhULrCX64qRkLLDgFbd+AIYBiA",
+  "witness": "m++NVW2A5Drn4L7LOn5oOLld7+RYlu1gdbuQNdBsmWRsMTsdPMpjnzMgUiD3LILjdVAYPbBV2h+dtuKPOUguR+U63L7LFh9S0iwNxyt4jytek6RFu6owclyxFl8DzezI",
+  "parameter_str": "--debug './pysimplicityhl/demo/p2pk.hl' './pysimplicityhl/demo/p2pk.wit'"
+}
+{
+  "status": "success",
+  "program": "5yHQKHQKHQKHQKEGHHHIMFSbFlQAQgUJIQYKvKcwYulQXr0Fu/BAWgC5j7LWeBAl+pI9pt9ZFn0rcXaN1FhgGI3Bzj8EOFROCCcF4cziqISK6EzABFXCwYvClhPYGFQusJfripGQssOAVt34AhgGIThCSD7zcTig/ABQLJsYc113LwehOp6MgcZy/xtyV5RlPnsqZbVWnstdoxRHioxDhgGITafj0EA4CBwoJxSBiLiIBmDi4DjQgxAoNyAOOONx+KBcX8WgcDE5AAcHBiNyLOOE1JIEnwxOZ+Cq1myCZY7Ax/Klosw4w/YaiSrNDaOhM/+erWaIc9xgwDFZAAAAAQNIVC1M24nMERf6gONImmAwub35L6eiVhI0f2X8hANtDAEy06t3vxQYBiFwBg5gXe+1Cj7rQ+ji6QJDRW0vEmFLGZXcRhKAN6Nt0/l2ADDAMXw4Ic3idDCRwDPfEbxc9Hgqw6MFFnfB5SG98/3X6ptShJKOWBgHCQnLZJFkAAAAAAoVfDUc2gh0FinqrkqEEWyo/WTDVDT/U2bJS9gAmPKXAmHgCyTBgGIWkhIoZ0QznIWef/b40z+a+nNzThyQhoT+7cjE0KYRLTvzYTFwuXQKObvJWcC0jz5LzKXn0/Nn/OQnPezJTiq+w46I+xAB5sdEwwDUE5iUkC5guQgozboObaVZ2p0jgwi+XQBxtGGWFy+/xoSyiAw9mWEcVuKG05XwwDELQb6EE/c3ifyUoNc1ZzkPnUg6gZ3G/jPcz7k+eRVKFshBw8VgVZAAAAAINwW58NhzSoNzoMc1Ae/7Z55CGHj0gOG/ZVBjb5kbDqY2kAJh07WGAYhcEISKEGB4jAwHMDLqyIAl/t8mPC4rRGEfM1lVH7CAxNfptKDrOKJGwAHAYBrC4gNL6lcZ9HTU3CRlRyCoGVZzuEYuSi/jp604WRZrD9L3pYeQYFCcSgcthcLAcuAcVAcgQuRADl4DmnCc1AHL8XKsBzAg5TA8qwOW4PLwDm5A5vQOcEDnFA==",
+  "witness": "eb5mfvncu6xVoGKVzocLBwKb/NstzijZWfKBWxb4F5jGBH+UQe19bTBFQG6VwHzYXHeOS4zvPKerrAm5XHCe5fkwigGSWMMQSTRPhfidUim1MchFg2+ZsIYB8RO84Db5OqkA3bFYVFxox+iX4BSo9RzMXSFf4zMm1XxQaRTGVqHm4QmsY+QXm7KhOu4X9UZCxW30vdZJQUWkxS0RuAJtt4A=",
+  "parameter_str": "--debug './pysimplicityhl/demo/lastwill.hl' './pysimplicityhl/demo/lastwill.wit'"
+}
 ```

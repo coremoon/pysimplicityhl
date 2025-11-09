@@ -1,5 +1,6 @@
 import os
 import pysimplicityhl
+import json
 
 def main1():
     basedir = os.path.dirname(__file__)
@@ -10,8 +11,9 @@ def main1():
     ]
     parameter_str = " ".join(parameter)
     result_json= pysimplicityhl.run_from_python(parameter_str)
-    print(f"parameter_str = {parameter_str}")
-    print(result_json)
+    res = json.loads(result_json)
+    res["parameter_str"] = parameter_str
+    print(json.dumps(res, default=str))
 
 def main2():
     basedir = os.path.dirname(__file__)
@@ -24,8 +26,9 @@ def main2():
     ]
     parameter_str = " ".join(parameter)
     result_json= pysimplicityhl.run_from_python(parameter_str)
-    print(f"parameter_str = {parameter_str}")
-    print(result_json)
+    res = json.loads(result_json)
+    res["parameter_str"] = parameter_str
+    print(json.dumps(res, default=str))
 
 def main3():
     basedir = os.path.dirname(__file__)
@@ -38,8 +41,9 @@ def main3():
     ]
     parameter_str = " ".join(parameter)
     result_json= pysimplicityhl.run_from_python(parameter_str)
-    print(f"parameter_str = {parameter_str}")
-    print(result_json)
+    res = json.loads(result_json)
+    res["parameter_str"] = parameter_str
+    print(json.dumps(res, default=str))
 
 
 if __name__ == "__main__":
