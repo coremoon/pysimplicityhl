@@ -1,23 +1,19 @@
 /*
-mod param {
-    // Alice, Bob, and Charlie's public keys will be provided via the witness file
-    const ALICE_PUBLIC_KEY: u256 = jet::param("ALICE_PUBLIC_KEY");
-    const BOB_PUBLIC_KEY: u256 = jet::param("BOB_PUBLIC_KEY");
-    const CHARLIE_PUBLIC_KEY: u256 = jet::param("CHARLIE_PUBLIC_KEY");
-}
-*/
-
-mod param {
-    // These values will be fetched dynamically at runtime
-    // Remove the constant declarations and move them to runtime fetching
-}
-
+ * LAST WILL
+ *
+ * The inheritor can spend the coins if the owner doesn't move the them for 180
+ * days. The owner has to repeat the covenant when he moves the coins with his
+ * hot key. The owner can break out of the covenant with his cold key.
+ */
 fn checksig(pk: Pubkey, sig: Signature) {
     let msg: u256 = jet::sig_all_hash();
     jet::bip_0340_verify((pk, msg), sig);
 }
 
 // Enforce the covenant to repeat in the first output.
+//
+// Elements has explicit fee outputs, so enforce a fee output in the second output.
+// Disallow further outputs.
 fn recursive_covenant() {
     assert!(jet::eq_32(jet::num_outputs(), 2));
     let this_script_hash: u256 = jet::current_script_hash();
@@ -27,28 +23,25 @@ fn recursive_covenant() {
 }
 
 fn inherit_spend(inheritor_sig: Signature) {
-    let days_180: Distance = 25920;  // 180 days
+    let days_180: Distance = 25920;
     jet::check_lock_distance(days_180);
-    let inheritor_pk: Pubkey = jet::param("ALICE_PUBLIC_KEY");  // Fetch ALICE's public key dynamically
+    let inheritor_pk: Pubkey = 0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798; // 1 * G
     checksig(inheritor_pk, inheritor_sig);
 }
 
 fn cold_spend(cold_sig: Signature) {
-    let cold_pk: Pubkey = jet::param("BOB_PUBLIC_KEY");  // Fetch BOB's public key dynamically
+    let cold_pk: Pubkey = 0xc6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5; // 2 * G
     checksig(cold_pk, cold_sig);
 }
 
 fn refresh_spend(hot_sig: Signature) {
-    let hot_pk: Pubkey = jet::param("CHARLIE_PUBLIC_KEY");  // Fetch CHARLIE's public key dynamically
+    let hot_pk: Pubkey = 0xf9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9; // 3 * G
     checksig(hot_pk, hot_sig);
     recursive_covenant();
 }
 
 fn main() {
-    // Dynamically fetch INHERIT_OR_NOT parameter from the witness
-    let inherit_or_not = jet::param("INHERIT_OR_NOT");
-
-    match inherit_or_not {
+    match witness::INHERIT_OR_NOT {
         Left(inheritor_sig: Signature) => inherit_spend(inheritor_sig),
         Right(cold_or_hot: Either<Signature, Signature>) => match cold_or_hot {
             Left(cold_sig: Signature) => cold_spend(cold_sig),
