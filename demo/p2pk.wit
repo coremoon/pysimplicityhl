@@ -1,0 +1,10 @@
+{
+    "ALICE_PUBLIC_KEY": {
+        "value": "0x9bef8d556d80e43ae7e0becb3a7e6838b95defe45896ed6075bb9035d06c9964",
+        "type": "u256"
+    },
+    "ALICE_SIGNATURE": {
+        "value": "0x6c313b1d3cca639f33205220f72c82e37550183db055da1f9db6e28f39482e47e53adcbecb161f52d22c0dc72b788f2b5e93a445bbaa30725cb1165f03cdecc8",
+        "type": "[u8; 64]"
+    }
+}

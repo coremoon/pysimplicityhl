@@ -1,0 +1,23 @@
+{
+  "INHERIT_OR_NOT": {
+    "type": "Either",
+    "value": {
+      "Left": {
+        "type": "[u8; 64]",
+        "value": "0xb422d20ec5cb9fd1c50e082882442f9a902ea893e04d7af4fce4856ca1457fdf988b8011c522a4041d0b985373ef60932c101d15d58104f922c9d78b94a21f57"
+      }
+    }
+  },
+  "ALICE_PUBLIC_KEY": {
+    "type": "u256",
+    "value": "0x9bef8d556d80e43ae7e0becb3a7e6838b95defe45896ed6075bb9035d06c9964"
+  },
+  "BOB_PUBLIC_KEY": {
+    "type": "u256",
+    "value": "0xe37d58a1aae4ba059fd2503712d998470d3a2522f7e2335f544ef384d2199e02"
+  },
+  "CHARLIE_PUBLIC_KEY": {
+    "type": "u256",
+    "value": "0x688466442a134ee312299bafb37058e385c98dd6005eaaf0f538f533efe5f91f"
+  }
+}

@@ -1,19 +1,15 @@
-mod witness {
-    const INHERIT_OR_NOT: Either<[u8; 64],Either<[u8; 64],[u8; 64]>> = Left(0xb422d20ec5cb9fd1c50e082882442f9a902ea893e04d7af4fce4856ca1457fdf988b8011c522a4041d0b985373ef60932c101d15d58104f922c9d78b94a21f57);
-}
-
 /*
 mod param {
-    const ALICE_PUBLIC_KEY: u256 = 0x9bef8d556d80e43ae7e0becb3a7e6838b95defe45896ed6075bb9035d06c9964;
-    const BOB_PUBLIC_KEY: u256 = 0xe37d58a1aae4ba059fd2503712d998470d3a2522f7e2335f544ef384d2199e02;
-    const CHARLIE_PUBLIC_KEY: u256 = 0x688466442a134ee312299bafb37058e385c98dd6005eaaf0f538f533efe5f91f;
+    // Alice, Bob, and Charlie's public keys will be provided via the witness file
+    const ALICE_PUBLIC_KEY: u256 = jet::param("ALICE_PUBLIC_KEY");
+    const BOB_PUBLIC_KEY: u256 = jet::param("BOB_PUBLIC_KEY");
+    const CHARLIE_PUBLIC_KEY: u256 = jet::param("CHARLIE_PUBLIC_KEY");
 }
 */
 
 mod param {
-    extern const ALICE_PUBLIC_KEY: u256;
-    extern const BOB_PUBLIC_KEY: u256;
-    extern const CHARLIE_PUBLIC_KEY: u256;
+    // These values will be fetched dynamically at runtime
+    // Remove the constant declarations and move them to runtime fetching
 }
 
 fn checksig(pk: Pubkey, sig: Signature) {
@@ -22,9 +18,6 @@ fn checksig(pk: Pubkey, sig: Signature) {
 }
 
 // Enforce the covenant to repeat in the first output.
-//
-// Elements has explicit fee outputs, so enforce a fee output in the second output.
-// Disallow further outputs.
 fn recursive_covenant() {
     assert!(jet::eq_32(jet::num_outputs(), 2));
     let this_script_hash: u256 = jet::current_script_hash();
@@ -34,25 +27,28 @@ fn recursive_covenant() {
 }
 
 fn inherit_spend(inheritor_sig: Signature) {
-    let days_180: Distance = 25920;
+    let days_180: Distance = 25920;  // 180 days
     jet::check_lock_distance(days_180);
-    let inheritor_pk: Pubkey = param::ALICE_PUBLIC_KEY;
+    let inheritor_pk: Pubkey = jet::param("ALICE_PUBLIC_KEY");  // Fetch ALICE's public key dynamically
     checksig(inheritor_pk, inheritor_sig);
 }
 
 fn cold_spend(cold_sig: Signature) {
-    let cold_pk: Pubkey = param::BOB_PUBLIC_KEY;
+    let cold_pk: Pubkey = jet::param("BOB_PUBLIC_KEY");  // Fetch BOB's public key dynamically
     checksig(cold_pk, cold_sig);
 }
 
 fn refresh_spend(hot_sig: Signature) {
-    let hot_pk: Pubkey = param::CHARLIE_PUBLIC_KEY;
+    let hot_pk: Pubkey = jet::param("CHARLIE_PUBLIC_KEY");  // Fetch CHARLIE's public key dynamically
     checksig(hot_pk, hot_sig);
     recursive_covenant();
 }
 
 fn main() {
-    match witness::INHERIT_OR_NOT {
+    // Dynamically fetch INHERIT_OR_NOT parameter from the witness
+    let inherit_or_not = jet::param("INHERIT_OR_NOT");
+
+    match inherit_or_not {
         Left(inheritor_sig: Signature) => inherit_spend(inheritor_sig),
         Right(cold_or_hot: Either<Signature, Signature>) => match cold_or_hot {
             Left(cold_sig: Signature) => cold_spend(cold_sig),
