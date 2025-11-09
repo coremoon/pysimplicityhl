@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pysimplicityhl"
-version = "0.3.1"
+version = "0.3.2"
 description = "Python module for simplicityhl compiler"
 readme = "README.md"
 authors = ["coremoon <237020170+coremoon@users.noreply.github.com>"]
@@ -28,3 +28,5 @@ build-backend = "maturin"
 [tool.maturin]
 manifest-path = "pysimplicityhl/Cargo.toml"
 module-name = "pysimplicityhl"
+long-description = "README.md"
+long-description-content-type = "text/markdown"
