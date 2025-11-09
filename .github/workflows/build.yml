@@ -10,12 +10,20 @@ on:
 
 jobs:
   build-wheels:
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-22.04, windows-latest, macos-13]
-        python-version: [3.9, 3.10, 3.11]
-        arch: [x64, arm64]  # arm64 nur für macOS relevant
-    runs-on: ${{ matrix.os }}
+        python-version: [3.9, 3.10, 3.11, 3.12, 3.13]
+        include:
+          - os: macos-13
+            arch: arm64
+          - os: macos-13
+            arch: x64
+          - os: ubuntu-22.04
+            arch: x64
+          - os: windows-latest
+            arch: x64
     steps:
       - uses: actions/checkout@v4
 
@@ -34,7 +42,7 @@ jobs:
           else
             maturin build --release --strip --out target/wheels
         env:
-          # Nur für macOS Apple Silicon (arm64)
+          # CARGO_BUILD_TARGET only macOS
           CARGO_BUILD_TARGET: ${{ matrix.arch }}
 
       - name: List wheels
