@@ -1,0 +1,20 @@
+[package]
+name = "pysimplicityhl"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "pysimplicityhl"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+base64 = "0.22.1"
+clap = "4.5.51"
+pyo3 = { version = "0.25", features = ["extension-module"] }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
+shell-words = "1.1.0"
+simplicityhl = "0.3.0"
+
+[features]
+default = []

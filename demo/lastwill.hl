@@ -1,0 +1,62 @@
+mod witness {
+    const INHERIT_OR_NOT: Either<[u8; 64],Either<[u8; 64],[u8; 64]>> = Left(0xb422d20ec5cb9fd1c50e082882442f9a902ea893e04d7af4fce4856ca1457fdf988b8011c522a4041d0b985373ef60932c101d15d58104f922c9d78b94a21f57);
+}
+
+/*
+mod param {
+    const ALICE_PUBLIC_KEY: u256 = 0x9bef8d556d80e43ae7e0becb3a7e6838b95defe45896ed6075bb9035d06c9964;
+    const BOB_PUBLIC_KEY: u256 = 0xe37d58a1aae4ba059fd2503712d998470d3a2522f7e2335f544ef384d2199e02;
+    const CHARLIE_PUBLIC_KEY: u256 = 0x688466442a134ee312299bafb37058e385c98dd6005eaaf0f538f533efe5f91f;
+}
+*/
+
+mod param {
+    extern const ALICE_PUBLIC_KEY: u256;
+    extern const BOB_PUBLIC_KEY: u256;
+    extern const CHARLIE_PUBLIC_KEY: u256;
+}
+
+fn checksig(pk: Pubkey, sig: Signature) {
+    let msg: u256 = jet::sig_all_hash();
+    jet::bip_0340_verify((pk, msg), sig);
+}
+
+// Enforce the covenant to repeat in the first output.
+//
+// Elements has explicit fee outputs, so enforce a fee output in the second output.
+// Disallow further outputs.
+fn recursive_covenant() {
+    assert!(jet::eq_32(jet::num_outputs(), 2));
+    let this_script_hash: u256 = jet::current_script_hash();
+    let output_script_hash: u256 = unwrap(jet::output_script_hash(0));
+    assert!(jet::eq_256(this_script_hash, output_script_hash));
+    assert!(unwrap(jet::output_is_fee(1)));
+}
+
+fn inherit_spend(inheritor_sig: Signature) {
+    let days_180: Distance = 25920;
+    jet::check_lock_distance(days_180);
+    let inheritor_pk: Pubkey = param::ALICE_PUBLIC_KEY;
+    checksig(inheritor_pk, inheritor_sig);
+}
+
+fn cold_spend(cold_sig: Signature) {
+    let cold_pk: Pubkey = param::BOB_PUBLIC_KEY;
+    checksig(cold_pk, cold_sig);
+}
+
+fn refresh_spend(hot_sig: Signature) {
+    let hot_pk: Pubkey = param::CHARLIE_PUBLIC_KEY;
+    checksig(hot_pk, hot_sig);
+    recursive_covenant();
+}
+
+fn main() {
+    match witness::INHERIT_OR_NOT {
+        Left(inheritor_sig: Signature) => inherit_spend(inheritor_sig),
+        Right(cold_or_hot: Either<Signature, Signature>) => match cold_or_hot {
+            Left(cold_sig: Signature) => cold_spend(cold_sig),
+            Right(hot_sig: Signature) => refresh_spend(hot_sig),
+        },
+    }
+}
