@@ -10,66 +10,52 @@ on:
 
 jobs:
   build-wheels:
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        include:
-          - os: ubuntu-22.04
-            python-version: 3.9
-          - os: ubuntu-22.04
-            python-version: 3.10
-          - os: ubuntu-22.04
-            python-version: 3.11
-          - os: windows-latest
-            python-version: 3.9
-          - os: windows-latest
-            python-version: 3.10
-          - os: windows-latest
-            python-version: 3.11
-          - os: macos-15
-            python-version: 3.9
-            arch: x64
-          - os: macos-15
-            python-version: 3.9
-            arch: arm64
-          - os: macos-15
-            python-version: 3.10
-            arch: x64
-          - os: macos-15
-            python-version: 3.10
-            arch: arm64
-          - os: macos-15
-            python-version: 3.11
-            arch: x64
-          - os: macos-15
-            python-version: 3.11
-            arch: arm64
-    runs-on: ${{ matrix.os }}
+        os: [macos-15, windows-latest]
+        python-version: [3.9, 3.10, 3.11]
+        arch: [x64, arm64]
+
+    # Prevent a single failed job from cancelling all others
+    fail-fast: false
+
+    # Limit parallel jobs to reduce load on GitHub runners
+    max-parallel: 5
+
     steps:
       - uses: actions/checkout@v4
 
+      # Set up Python for the current matrix combination
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
+      # Install maturin for building wheels
       - name: Install maturin
         run: python -m pip install --upgrade pip maturin
 
+      # Build the wheel
       - name: Build wheel
         run: |
           if [[ "${{ runner.os }}" == "Linux" ]]; then
             maturin build --release --manylinux 2014 --strip --out target/wheels
+          elif [[ "${{ runner.os }}" == "Windows" ]]; then
+            maturin build --release --strip --out target/wheels
           else
             maturin build --release --strip --out target/wheels
         env:
-          # Nur macOS braucht arch
-          CARGO_BUILD_TARGET: ${{ matrix.arch || '' }}
+          # Only set architecture for macOS, otherwise leave empty
+          CARGO_BUILD_TARGET: ${{ matrix.os == 'macos-15' && matrix.arch || '' }}
 
+      # List the generated wheels
       - name: List wheels
         run: ls -l target/wheels
 
+      # Upload the wheels as artifacts
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-${{ matrix.os }}-${{ matrix.arch || 'x64' }}-py${{ matrix.python-version }}
+          name: wheels-${{ matrix.os }}-${{ matrix.arch }}-py${{ matrix.python-version }}
           path: target/wheels/*.whl
