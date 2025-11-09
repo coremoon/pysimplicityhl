@@ -17,11 +17,11 @@ jobs:
         python-version: [3.9, 3.10, 3.11]
         arch: [x64, arm64]
 
-    # Prevent a single failed job from cancelling all others
-    fail-fast: false
+      # Prevent a single failed job from cancelling all others
+      fail-fast: false
 
-    # Limit parallel jobs to reduce load on GitHub runners
-    max-parallel: 5
+      # Limit parallel jobs to reduce load on GitHub runners
+      max-parallel: 5
 
     steps:
       - uses: actions/checkout@v4
