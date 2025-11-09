@@ -1,18 +1,4 @@
-name: Build Python wheels
-
-on:
-  push:
-    branches:
-      - main
-      - master
-    tags:
-      - 'v*'
-  pull_request:
-    branches:
-      - main
-      - master
-  workflow_dispatch:
-name: Build Python wheels
+name: Build Python Wheels
 
 on:
   push:
@@ -24,12 +10,12 @@ on:
 
 jobs:
   build-wheels:
-    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-22.04, windows-latest, macos-13]
-        python-version: [3.9, 3.10, 3.11, 3.12]
-        arch: [x64, arm64]  
+        python-version: [3.9, 3.10, 3.11]
+        arch: [x64, arm64]  # arm64 nur für macOS relevant
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
 
@@ -47,7 +33,9 @@ jobs:
             maturin build --release --manylinux 2014 --strip --out target/wheels
           else
             maturin build --release --strip --out target/wheels
-          fi
+        env:
+          # Nur für macOS Apple Silicon (arm64)
+          CARGO_BUILD_TARGET: ${{ matrix.arch }}
 
       - name: List wheels
         run: ls -l target/wheels
@@ -55,9 +43,8 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-${{ matrix.os }}-py${{ matrix.python-version }}
+          name: wheels-${{ matrix.os }}-${{ matrix.arch }}-py${{ matrix.python-version }}
           path: target/wheels/*.whl
-
 
   # publish:
   #   needs: build
