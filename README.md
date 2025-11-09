@@ -76,3 +76,6 @@ and should give the results of several test simplicity files being compiled
   "parameter_str": "--debug './pysimplicityhl/demo/lastwill.hl' './pysimplicityhl/demo/lastwill.wit'"
 }
 ```
+
+# Important
+Windows users should note the surrounded quotes when stating filenames with full path (see output key `parameter_str`)
