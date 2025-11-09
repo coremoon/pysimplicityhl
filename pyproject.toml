@@ -2,7 +2,8 @@
 name = "pysimplicityhl"
 version = "0.1.0"
 description = "Python module for simplicityhl compiler"
-authors = ["anonym <anonym@example.com>"]
+readme = "README.md"
+authors = ["coremoon <237020170+coremoon@users.noreply.github.com>"]
 packages = [{ include = "pysimplicityhl" }]
 
 [tool.poetry.dependencies]
@@ -17,12 +18,6 @@ pytest = "^8.0"
 shell = """
 # create native modul with maturin
 maturin build --manifest-path pysimplicityhl/Cargo.toml --release
-# maturin build --manifest-path pysimplicityhl/Cargo.toml --release -i python3.13
-# maturin build --manifest-path pysimplicityhl/Cargo.toml --release -i python3.12
-# maturin build --manifest-path pysimplicityhl/Cargo.toml --release -i python3.11
-# maturin build --manifest-path pysimplicityhl/Cargo.toml --release -i python3.9
-# maturin build --manifest-path pysimplicityhl/Cargo.toml --release -i python3.8
-# maturin build --manifest-path pysimplicityhl/Cargo.toml --release -i python3.10
 poetry run pip install --force-reinstall "$(ls -t target/wheels/pysimplicityhl*.whl | head -n 1)"
 """
 

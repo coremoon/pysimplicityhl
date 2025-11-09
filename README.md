@@ -1,5 +1,28 @@
 # pysimplicityhl
-a python wrapper for the simplicityhl compiler
+a python wrapper for the [simplicityhl](https://github.com/BlockstreamResearch/SimplicityHL) compiler
+
+# Usage
+
+run `pysimplicityhl.run_from_python` to call the `SimplicityHL` compiler like this:
+
+```python
+import os
+import json
+import pysimplicityhl
+
+if __name__ == "__main__":
+    basedir = os.path.dirname(__file__)
+    hl_file = f"'{basedir}/simple.hl'" # contains only a dummy "fn main() {}"
+    parameter = [
+        "--debug",
+        f"{hl_file}",
+    ]
+    parameter_str = " ".join(parameter) # one single string
+    result_json= pysimplicityhl.run_from_python(parameter_str)
+    res = json.loads(result_json)
+    res["parameter_str"] = parameter_str
+    print(json.dumps(res, default=str))
+```
 
 # Installation
 
