@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pysimplicityhl"
-version = "0.1.0"
+version = "0.3.0.1"
 description = "Python module for simplicityhl compiler"
 readme = "README.md"
 authors = ["coremoon <237020170+coremoon@users.noreply.github.com>"]
