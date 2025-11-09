@@ -3,6 +3,7 @@
 /.idea
 /.vscode
 **/poetry.lock
+**/Cargo.lock
 
 # rust folders
 target/

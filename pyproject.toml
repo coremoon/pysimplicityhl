@@ -15,8 +15,14 @@ pytest = "^8.0"
 
 [tool.poe.tasks.build-wheel]
 shell = """
-# baue das native Modul mit maturin aus dem Unterverzeichnis
+# create native modul with maturin
 maturin build --manifest-path pysimplicityhl/Cargo.toml --release
+# maturin build --manifest-path pysimplicityhl/Cargo.toml --release -i python3.13
+# maturin build --manifest-path pysimplicityhl/Cargo.toml --release -i python3.12
+# maturin build --manifest-path pysimplicityhl/Cargo.toml --release -i python3.11
+# maturin build --manifest-path pysimplicityhl/Cargo.toml --release -i python3.9
+# maturin build --manifest-path pysimplicityhl/Cargo.toml --release -i python3.8
+# maturin build --manifest-path pysimplicityhl/Cargo.toml --release -i python3.10
 poetry run pip install --force-reinstall "$(ls -t target/wheels/pysimplicityhl*.whl | head -n 1)"
 """
 
