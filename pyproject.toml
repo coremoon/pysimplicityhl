@@ -1,10 +1,26 @@
-[tool.poetry]
+[project]
 name = "pysimplicityhl"
-version = "0.3.2"
+version = "0.3.4"
 description = "Python module for simplicityhl compiler"
 readme = "README.md"
+authors = [
+  { name = "coremoon", email = "237020170+coremoon@users.noreply.github.com" }
+]
+requires-python = ">=3.9"
+
+[build-system]
+requires = ["maturin>=1.7,<2.0"]
+build-backend = "maturin"
+
+[tool.maturin]
+manifest-path = "pysimplicityhl/Cargo.toml"
+module-name = "pysimplicityhl"
+
+[tool.poetry]
+name = "pysimplicityhl"
+version = "0.3.4"
+description = "Python module for simplicityhl compiler"
 authors = ["coremoon <237020170+coremoon@users.noreply.github.com>"]
-packages = [{ include = "pysimplicityhl" }]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -16,17 +32,7 @@ pytest = "^8.0"
 
 [tool.poe.tasks.build-wheel]
 shell = """
-# create native modul with maturin
+# create native module with maturin
 maturin build --manifest-path pysimplicityhl/Cargo.toml --release
 poetry run pip install --force-reinstall "$(ls -t target/wheels/pysimplicityhl*.whl | head -n 1)"
 """
-
-[build-system]
-requires = ["maturin>=1.7,<2.0"]
-build-backend = "maturin"
-
-[tool.maturin]
-manifest-path = "pysimplicityhl/Cargo.toml"
-module-name = "pysimplicityhl"
-long-description = "README.md"
-long-description-content-type = "text/markdown"
