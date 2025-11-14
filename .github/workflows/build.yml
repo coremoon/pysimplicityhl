@@ -104,7 +104,7 @@ jobs:
               PYMINOR=\${PYVER#*.}
       
               # Dynamische Python detection
-              PYBIN=\$(ls -d /opt/python/cp*${PYMAJOR}${PYMINOR}*/bin | head -n 1)
+              PYBIN=\$(ls -d /opt/python/cp*${PYMAJOR}${PYMINOR}*/bin/python | head -n 1)
               echo 'Using Python: '\$PYBIN
       
               \$PYBIN/pip install --upgrade pip maturin
