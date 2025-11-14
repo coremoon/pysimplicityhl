@@ -1,6 +1,6 @@
 [project]
 name = "pysimplicityhl"
-version = "0.3.4"
+version = "0.3.5"
 description = "Python module for simplicityhl compiler"
 readme = "README.md"
 authors = [
@@ -18,7 +18,7 @@ module-name = "pysimplicityhl"
 
 [tool.poetry]
 name = "pysimplicityhl"
-version = "0.3.4"
+version = "0.3.5"
 description = "Python module for simplicityhl compiler"
 authors = ["coremoon <237020170+coremoon@users.noreply.github.com>"]
 
