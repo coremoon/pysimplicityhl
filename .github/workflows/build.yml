@@ -66,45 +66,59 @@ jobs:
           name: wheel-windows-x64-py${{ matrix.python-version }}
           path: target/wheels/*.whl
 
-- name: Build wheel inside manylinux container
-  run: |
-    docker run --rm \
-      -v ${{ github.workspace }}:/io \
-      -e PYVER=${{ matrix.python-version }} \
-      quay.io/pypa/manylinux2014_x86_64 \
-      /bin/bash -c "
-        set -e
-
-        echo '--- Searching for Cargo.toml ---'
-        CARGO_TOML=\$(find /io -maxdepth 4 -type f -name Cargo.toml | head -n 1)
-        echo 'Using manifest: '\$CARGO_TOML
-
-        PROJECT_DIR=\$(dirname \$CARGO_TOML)
-
-        # Dynamische Python interpreter detection
-        echo '--- Detecting Python interpreter ---'
-        PYBIN=\$(ls -d /opt/python/cp*${{ matrix.python-version//./ }}*/bin | head -n 1)
-
-        if [ -z \"\$PYBIN\" ]; then
-          echo 'ERROR: No matching Python interpreter found!'
-          ls /opt/python
-          exit 1
-        fi
-
-        echo 'Using PYBIN: '\$PYBIN
-
-        \$PYBIN/pip install --upgrade pip maturin
-
-        curl https://sh.rustup.rs -sSf | sh -s -- -y
-        source \$HOME/.cargo/env
-
-        \$PYBIN/maturin build \
-            --release \
-            --manifest-path \$CARGO_TOML \
-            --manylinux 2014 \
-            --out /io/target/wheels
-      "
+  build-wheel-linux:
+      runs-on: ubuntu-22.04
+      strategy:
+        matrix:
+          python-version: ["3.9", "3.10", "3.11", "3.12"]
   
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+
+        - name: Build wheel inside manylinux container
+          run: |
+            docker run --rm \
+              -v ${{ github.workspace }}:/io \
+              -e PYVER=${{ matrix.python-version }} \
+              quay.io/pypa/manylinux2014_x86_64 \
+              /bin/bash -c "
+                set -e
+        
+                echo '--- Searching for Cargo.toml ---'
+                CARGO_TOML=\$(find /io -maxdepth 4 -type f -name Cargo.toml | head -n 1)
+                echo 'Using manifest: '\$CARGO_TOML
+        
+                PROJECT_DIR=\$(dirname \$CARGO_TOML)
+        
+                # Dynamische Python interpreter detection
+                echo '--- Detecting Python interpreter ---'
+                PYBIN=\$(ls -d /opt/python/cp*${{ matrix.python-version//./ }}*/bin | head -n 1)
+        
+                if [ -z \"\$PYBIN\" ]; then
+                  echo 'ERROR: No matching Python interpreter found!'
+                  ls /opt/python
+                  exit 1
+                fi
+        
+                echo 'Using PYBIN: '\$PYBIN
+        
+                \$PYBIN/pip install --upgrade pip maturin
+        
+                curl https://sh.rustup.rs -sSf | sh -s -- -y
+                source \$HOME/.cargo/env
+        
+                \$PYBIN/maturin build \
+                    --release \
+                    --manifest-path \$CARGO_TOML \
+                    --manylinux 2014 \
+                    --out /io/target/wheels
+                "
+        - name: Upload wheel
+          uses: actions/upload-artifact@v4
+          with:
+            name: wheel-linux-x64-py${{ matrix.python-version }}
+            path: target/wheels/*.whl          
   ##
   upload-to-pypi:
     runs-on: ubuntu-22.04
