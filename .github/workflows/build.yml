@@ -84,43 +84,42 @@ jobs:
             quay.io/pypa/manylinux2014_x86_64 \
             /bin/bash -c "
               set -e
-
               echo '--- Searching for Cargo.toml ---'
               find /io -maxdepth 4 -type f -name Cargo.toml || true
-
+      
               # Auto-detect Cargo.toml path
               CARGO_TOML=\$(find /io -maxdepth 4 -type f -name Cargo.toml | head -n 1)
-
               if [ -z \"\$CARGO_TOML\" ]; then
                 echo 'ERROR: No Cargo.toml found in repository!'
                 exit 1
               fi
-
               echo 'Using manifest: '\$CARGO_TOML
-
+      
               # Extract directory
               PROJECT_DIR=\$(dirname \$CARGO_TOML)
               echo 'Project directory: '\$PROJECT_DIR
-
+      
               # Python version detection inside manylinux
               PYMAJOR=\${PYVER%%.*}
               PYMINOR=\${PYVER#*.}
-              PYBIN=/opt/python/cp\${PYMAJOR}\${PYMINOR}-cp\${PYMAJOR}\${PYMINOR}
-
+      
+              # Dynamische Python detection
+              PYBIN=\$(ls -d /opt/python/cp*${PYMAJOR}${PYMINOR}*/bin | head -n 1)
               echo 'Using Python: '\$PYBIN
-
-              \$PYBIN/bin/pip install --upgrade pip maturin
-
+      
+              \$PYBIN/pip install --upgrade pip maturin
+      
+              # Install Rust
               curl https://sh.rustup.rs -sSf | sh -s -- -y
               source \$HOME/.cargo/env
-
-              \$PYBIN/bin/maturin build \
+      
+              # Build the wheel
+              \$PYBIN/maturin build \
                   --release \
                   --manifest-path \$CARGO_TOML \
                   --manylinux 2014 \
                   --out /io/target/wheels
             "
-
       - name: Upload wheel
         uses: actions/upload-artifact@v4
         with:
