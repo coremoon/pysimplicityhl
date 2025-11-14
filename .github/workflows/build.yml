@@ -107,19 +107,21 @@ jobs:
               PYBIN=\$(ls -d /opt/python/cp*${PYMAJOR}${PYMINOR}*/bin/python | head -n 1)
               echo 'Using Python: '\$PYBIN
       
-              \$PYBIN/pip install --upgrade pip maturin
+              # Upgrade pip and install maturin via Python -m pip
+              \$PYBIN -m pip install --upgrade pip maturin
       
               # Install Rust
               curl https://sh.rustup.rs -sSf | sh -s -- -y
               source \$HOME/.cargo/env
       
-              # Build the wheel
-              \$PYBIN/maturin build \
+              # Build the wheel using maturin installed via pip
+              \$PYBIN -m maturin build \
                   --release \
                   --manifest-path \$CARGO_TOML \
                   --manylinux 2014 \
                   --out /io/target/wheels
             "
+
       - name: Upload wheel
         uses: actions/upload-artifact@v4
         with:
