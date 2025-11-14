@@ -76,28 +76,38 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build wheel inside manylinux2014 container
+      - name: Build wheel inside manylinux container
         run: |
           docker run --rm \
             -v ${{ github.workspace }}:/io \
-            -e PYTHON_VERSION=${{ matrix.python-version }} \
+            -e PYVER=${{ matrix.python-version }} \
             quay.io/pypa/manylinux2014_x86_64 \
             /bin/bash -c "
-              # Install python
-              PYBIN=/opt/python/cp\${PYTHON_VERSION/./}-cp\${PYTHON_VERSION/./}m/bin
-              if [ ! -d \$PYBIN ]; then
-                PYBIN=/opt/python/cp\${PYTHON_VERSION/./}-cp\${PYTHON_VERSION/./}  # 3.10+ no m-suffix
+              set -e
+
+              # find correct python inside manylinux
+              PYMAJOR=\${PYVER%%.*}
+              PYMINOR=\${PYVER#*.}
+
+              # try cpXY-cpXY
+              PYBIN=/opt/python/cp\${PYMAJOR}\${PYMINOR}-cp\${PYMAJOR}\${PYMINOR}
+              if [ ! -x \"\$PYBIN/bin/pip\" ]; then
+                echo 'Could not find python: '\$PYBIN
+                ls /opt/python
+                exit 1
               fi
 
+              echo 'Using Python in: '\$PYBIN
+
               # Install maturin
-              \$PYBIN/pip install --upgrade pip maturin
+              \$PYBIN/bin/pip install --upgrade pip maturin
 
               # Install Rust
               curl https://sh.rustup.rs -sSf | sh -s -- -y
-              export PATH=/root/.cargo/bin:\$PATH
+              source \$HOME/.cargo/env
 
               # Build wheel
-              \$PYBIN/maturin build \
+              \$PYBIN/bin/maturin build \
                   --release \
                   --manifest-path pysimplicityhl/Cargo.toml \
                   --manylinux 2014 \
