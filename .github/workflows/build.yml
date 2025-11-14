@@ -71,11 +71,10 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
+  
       - name: Build wheel inside manylinux container
         run: |
           docker run --rm \
@@ -86,7 +85,7 @@ jobs:
               set -e
               echo '--- Searching for Cargo.toml ---'
               find /io -maxdepth 4 -type f -name Cargo.toml || true
-      
+  
               # Auto-detect Cargo.toml path
               CARGO_TOML=\$(find /io -maxdepth 4 -type f -name Cargo.toml | head -n 1)
               if [ -z \"\$CARGO_TOML\" ]; then
@@ -94,40 +93,40 @@ jobs:
                 exit 1
               fi
               echo 'Using manifest: '\$CARGO_TOML
-      
+  
               # Extract directory
               PROJECT_DIR=\$(dirname \$CARGO_TOML)
               echo 'Project directory: '\$PROJECT_DIR
-      
+  
               # Python version detection inside manylinux
               PYMAJOR=\${PYVER%%.*}
               PYMINOR=\${PYVER#*.}
-      
+  
               # Dynamische Python detection
               PYBIN=\$(ls -d /opt/python/cp*${PYMAJOR}${PYMINOR}*/bin/python | head -n 1)
               echo 'Using Python: '\$PYBIN
-      
-              # Upgrade pip and install maturin via Python -m pip
+  
               \$PYBIN -m pip install --upgrade pip maturin
-      
+  
               # Install Rust
               curl https://sh.rustup.rs -sSf | sh -s -- -y
               source \$HOME/.cargo/env
-      
-              # Build the wheel using maturin installed via pip
+  
+              # Build the wheel using explicit interpreter
               \$PYBIN -m maturin build \
                   --release \
                   --manifest-path \$CARGO_TOML \
                   --manylinux 2014 \
+                  --interpreter \$PYBIN \
                   --out /io/target/wheels
             "
-
+  
       - name: Upload wheel
         uses: actions/upload-artifact@v4
         with:
           name: wheel-linux-x64-py${{ matrix.python-version }}
           path: target/wheels/*.whl
-   
+     
   ##
   upload-to-pypi:
     runs-on: ubuntu-22.04
