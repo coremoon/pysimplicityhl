@@ -81,9 +81,25 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install maturin
-        run: python -m pip install --upgrade pip maturin
+#      - name: Install maturin
+#        run: python -m pip install --upgrade pip maturin
 
+#
+      - name: Install minimal system dependencies for python:3.10-slim
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            libffi-dev \
+            libssl-dev \
+            python3-dev \
+            cargo \
+            && sudo apt-get clean \
+            && rm -rf /var/lib/apt/lists/*
+  
+      - name: Upgrade pip and install maturin
+        run: python -m pip install --upgrade pip maturin
+#
       - name: Build wheel
         run: |
           maturin build --release --strip --out target/wheels
