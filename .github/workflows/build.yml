@@ -85,31 +85,38 @@ jobs:
             /bin/bash -c "
               set -e
 
-              # find correct python inside manylinux
-              PYMAJOR=\${PYVER%%.*}
-              PYMINOR=\${PYVER#*.}
+              echo '--- Searching for Cargo.toml ---'
+              find /io -maxdepth 4 -type f -name Cargo.toml || true
 
-              # try cpXY-cpXY
-              PYBIN=/opt/python/cp\${PYMAJOR}\${PYMINOR}-cp\${PYMAJOR}\${PYMINOR}
-              if [ ! -x \"\$PYBIN/bin/pip\" ]; then
-                echo 'Could not find python: '\$PYBIN
-                ls /opt/python
+              # Auto-detect Cargo.toml path
+              CARGO_TOML=\$(find /io -maxdepth 4 -type f -name Cargo.toml | head -n 1)
+
+              if [ -z \"\$CARGO_TOML\" ]; then
+                echo 'ERROR: No Cargo.toml found in repository!'
                 exit 1
               fi
 
-              echo 'Using Python in: '\$PYBIN
+              echo 'Using manifest: '\$CARGO_TOML
 
-              # Install maturin
+              # Extract directory
+              PROJECT_DIR=\$(dirname \$CARGO_TOML)
+              echo 'Project directory: '\$PROJECT_DIR
+
+              # Python version detection inside manylinux
+              PYMAJOR=\${PYVER%%.*}
+              PYMINOR=\${PYVER#*.}
+              PYBIN=/opt/python/cp\${PYMAJOR}\${PYMINOR}-cp\${PYMAJOR}\${PYMINOR}
+
+              echo 'Using Python: '\$PYBIN
+
               \$PYBIN/bin/pip install --upgrade pip maturin
 
-              # Install Rust
               curl https://sh.rustup.rs -sSf | sh -s -- -y
               source \$HOME/.cargo/env
 
-              # Build wheel
               \$PYBIN/bin/maturin build \
                   --release \
-                  --manifest-path pysimplicityhl/Cargo.toml \
+                  --manifest-path \$CARGO_TOML \
                   --manylinux 2014 \
                   --out /io/target/wheels
             "
@@ -119,7 +126,8 @@ jobs:
         with:
           name: wheel-linux-x64-py${{ matrix.python-version }}
           path: target/wheels/*.whl
-
+  
+  ##
   upload-to-pypi:
     runs-on: ubuntu-22.04
     needs: [build-wheel-macos, build-wheel-windows, build-wheel-linux]
