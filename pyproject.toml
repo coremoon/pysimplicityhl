@@ -15,6 +15,9 @@ build-backend = "maturin"
 [tool.maturin]
 manifest-path = "pysimplicityhl/Cargo.toml"
 module-name = "pysimplicityhl"
+bindings = "pyo3"
+manylinux = "2014"     # only used for linux
+strip = true
 
 [tool.poetry]
 name = "pysimplicityhl"
