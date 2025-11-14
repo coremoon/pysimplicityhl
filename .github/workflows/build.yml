@@ -68,6 +68,8 @@ jobs:
 
   build-wheel-linux:
     runs-on: ubuntu-22.04
+    container:
+      image: quay.io/pypa/manylinux2014_x86_64
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
