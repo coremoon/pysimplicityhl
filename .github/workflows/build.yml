@@ -74,70 +74,37 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-  
-      - name: Build wheel inside manylinux container
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Upgrade pip & install maturin
+        run: python -m pip install --upgrade pip maturin
+      - name: Install Rust
         run: |
-          docker run --rm \
-            -v ${{ github.workspace }}:/io \
-            -e PYVER=${{ matrix.python-version }} \
-            quay.io/pypa/manylinux2014_x86_64 \
-            /bin/bash -c "
-              set -e
-              echo '--- Searching for Cargo.toml ---'
-              find /io -maxdepth 4 -type f -name Cargo.toml || true
-  
-              # Auto-detect Cargo.toml path
-              CARGO_TOML=\$(find /io -maxdepth 4 -type f -name Cargo.toml | head -n 1)
-              if [ -z \"\$CARGO_TOML\" ]; then
-                echo 'ERROR: No Cargo.toml found in repository!'
-                exit 1
-              fi
-              echo 'Using manifest: '\$CARGO_TOML
-  
-              # Extract directory
-              PROJECT_DIR=\$(dirname \$CARGO_TOML)
-              echo 'Project directory: '\$PROJECT_DIR
-  
-              # Python version detection inside manylinux
-              PYMAJOR=\${PYVER%%.*}
-              PYMINOR=\${PYVER#*.}
-  
-              # Dynamische Python detection
-              # Für Python >=3.8 ohne 'm'-Suffix
-              if [ \$PYMAJOR\$PYMINOR -ge 38 ]; then
-                PYBIN=\"/opt/python/cp\${PYMAJOR}\${PYMINOR}-cp\${PYMAJOR}\${PYMINOR}/bin/python\"
-              else
-                PYBIN=\"/opt/python/cp\${PYMAJOR}\${PYMINOR}-cp\${PYMAJOR}\${PYMINOR}m/bin/python\"
-              fi
-  
-              if [ ! -f \"\$PYBIN\" ]; then
-                echo \"ERROR: Python \$PYVER not found at \$PYBIN\"
-                exit 1
-              fi
-              echo 'Using Python: '\$PYBIN
-  
-              # Upgrade pip & install maturin
-              \$PYBIN -m pip install --upgrade pip maturin
-  
-              # Install Rust
-              curl https://sh.rustup.rs -sSf | sh -s -- -y
-              source \$HOME/.cargo/env
-  
-              # Build the wheel using explicit interpreter
-              \$PYBIN -m maturin build \
-                  --release \
-                  --manifest-path \$CARGO_TOML \
-                  --manylinux 2014 \
-                  --interpreter \$PYBIN \
-                  --out /io/target/wheels
-            "
-  
+          curl https://sh.rustup.rs -sSf | sh -s -- -y
+          source $HOME/.cargo/env
+      - name: Build wheel
+        run: |
+          # Auto-detect Cargo.toml path
+          CARGO_TOML=$(find . -maxdepth 4 -type f -name Cargo.toml | head -n 1)
+          if [ -z "$CARGO_TOML" ]; then
+            echo "ERROR: No Cargo.toml found!"
+            exit 1
+          fi
+          echo "Using manifest: $CARGO_TOML"
+          # Build wheel
+          python -m maturin build \
+            --release \
+            --manifest-path $CARGO_TOML \
+            --interpreter python \
+            --out target/wheels
       - name: Upload wheel
         uses: actions/upload-artifact@v4
         with:
           name: wheel-linux-x64-py${{ matrix.python-version }}
           path: target/wheels/*.whl
-          
+         
   ##
   upload-to-pypi:
     runs-on: ubuntu-22.04
